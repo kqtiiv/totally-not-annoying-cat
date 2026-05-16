@@ -11,21 +11,28 @@ WebServer server(80);
 String currentStatus = "IDLE";
 const int triggerPin = 1;
 
+// NEW: This keeps track of whether we have already triggered a sound
+bool soundTriggered = false; 
+
 // Sends the current status (IDLE or PLAY) to your iPhone app
 void handleStatus() {
     server.sendHeader("Connection", "close");
     server.send(200, "text/html", currentStatus);
 }
 
-// Resets the status back to IDLE after the iPhone plays the sound
+// Resets the status back to IDLE AND clears our trigger flag
 void handleReset() {
     server.sendHeader("Connection", "close");
     currentStatus = "IDLE";
+    soundTriggered = false; // ALLOWS THE ESP32 TO TRIGGER THE NEXT SOUND
     server.send(200, "text/plain", "RESET_OK");
 }
 
 void setup() {
     // Start serial communication at 115200 baud rate
+    pinMode(LED_BUILTIN, OUTPUT);
+    digitalWrite(LED_BUILTIN, HIGH);  // turn the LED on (HIGH is the voltage level)
+
     Serial.begin(115200);
     
     // Configure the on-board button pin
@@ -54,34 +61,44 @@ void setup() {
 
 void loop() {
     server.handleClient();
-    if (digitalRead(triggerPin) == LOW) {
-        counter = 0;
-        currentStatus = "PLAYPURR";
-        Serial.println("Trigger activated! Status set to PLAYPURR.");
-        return;
+    
+    // HIGH means the button is NOT pressed (idle state)
+    if (digitalRead(triggerPin) == HIGH) {
+        
+        // Only change the status if we haven't already sent a play command
+        if (!soundTriggered) {
+            
+            if (counter < 100) {
+                currentStatus = "PLAY1";
+            } else if (counter < 200) {
+                currentStatus = "PLAY2";
+            } else if (counter < 300) {
+                currentStatus = "PLAY3";
+            } else if (counter < 400) {
+                currentStatus = "PLAY4";
+            } else if (counter < 500) {
+                currentStatus = "PLAY5";
+            } else {
+                currentStatus = "PLAY6";
+            }
+            
+            Serial.print("Button is NOT pressed! Status set to: ");
+            Serial.println(currentStatus);
+            
+            // Lock it down so it doesn't spam. 
+            // It stays locked until the app calls /reset
+            soundTriggered = true; 
+        }
+    } else {
+        // Optional: If they DO press the button, reset the tracker 
+        // or change the status if you want a "pressed" behavior.
     }
 
-    if (counter < 100) {
-        currentStatus = "PLAY1";
-        Serial.println("Trigger activated! Status set to PLAY1.");
-    } else if (counter < 200) {
-        currentStatus = "PLAY2";
-        Serial.println("Trigger activated! Status set to PLAY2.");
-    } else if (counter < 300) {
-        currentStatus = "PLAY3";
-        Serial.println("Trigger activated! Status set to PLAY3.");
-    } else if (counter < 400) {
-        currentStatus = "PLAY4";
-        Serial.println("Trigger activated! Status set to PLAY4.");
-    } else if (counter < 500) {
-        currentStatus = "PLAY5";
-        Serial.println("Trigger activated! Status set to PLAY5.");
-    }   else {
-        currentStatus = "PLAY6";
-        Serial.println("Trigger activated! Status set to PLAY6.");
+    // Cycle the counter in the background to mix up the sounds
+    counter++;
+    if (counter >= 600) {
+        counter = 0; 
     }
     
-    delay(200);
-
-    counter++;
+    delay(50); 
 }
