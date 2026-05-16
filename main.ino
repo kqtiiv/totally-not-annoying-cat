@@ -55,11 +55,33 @@ void setup() {
 void loop() {
     server.handleClient();
     if (digitalRead(triggerPin) == LOW) {
+        counter = 0;
+        currentStatus = "PLAYPURR";
+        Serial.println("Trigger activated! Status set to PLAYPURR.");
         return;
     }
-    currentStatus = "PLAY";
-    Serial.println("Trigger activated! Status set to PLAY.");
-    delay(500);
+
+    if (counter < 100) {
+        currentStatus = "PLAY1";
+        Serial.println("Trigger activated! Status set to PLAY1.");
+    } else if (counter < 200) {
+        currentStatus = "PLAY2";
+        Serial.println("Trigger activated! Status set to PLAY2.");
+    } else if (counter < 300) {
+        currentStatus = "PLAY3";
+        Serial.println("Trigger activated! Status set to PLAY3.");
+    } else if (counter < 400) {
+        currentStatus = "PLAY4";
+        Serial.println("Trigger activated! Status set to PLAY4.");
+    } else if (counter < 500) {
+        currentStatus = "PLAY5";
+        Serial.println("Trigger activated! Status set to PLAY5.");
+    }   else {
+        currentStatus = "PLAY6";
+        Serial.println("Trigger activated! Status set to PLAY6.");
+    }
+    
+    delay(200);
 
     counter++;
 }
