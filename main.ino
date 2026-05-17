@@ -1,9 +1,10 @@
 #include <WiFi.h>
 #include <WebServer.h>
+#include <secrets.cpp>
 
 // Enter your home Wi-Fi network details here
-const char* ssid = "30Engate";
-const char* password = "Engate-Guest#8923";
+const char* ssid = SSID;
+const char* password = PASSWORD;
 
 int counter = 0;
 
