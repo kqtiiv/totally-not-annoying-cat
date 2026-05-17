@@ -7,10 +7,15 @@ Just don't ignore it :3
 **What it does:**
 
 Meow
+
 Purr if petted
+
 Meow
+
 Stabby if no pet
+
 Meow
+
 Tase if angy >:(
 
 ![Cat](/sources/cat.png "Cat")
